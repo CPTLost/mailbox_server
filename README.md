@@ -12,7 +12,7 @@ Anschließend wird versucht eine Verbindung zum Heimnetzwerk per WLAN aufzubauen
 Danach wird der UDP Data Mutex initialisiert und der UDP-Server Task created.
 Abschließend wird der HTTPS-Server gestartet. 
 
-# #LED Blink
+## LED Blink
 
 Der LED Blink Task, wie der Name schon verrät, lässt die RGB LED vom DevKitM-1 in den entsprechenden Farben erleuchten:
 
