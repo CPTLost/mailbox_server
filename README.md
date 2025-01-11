@@ -1,8 +1,11 @@
 # Mailbox_server
 
 Drei Haupt-Tasks/Prozesse:
+
 •	LED Blink 
+
 •	UDP-Server
+
 •	HTTPS-Server
 
 ## Main
@@ -44,10 +47,15 @@ Wenn nur die IP-Adresse vom Server aufgerufen wird, stellt der root handler die 
 Folgende Befehle wurden verwendet:
 
 •	Generate a private key
+
   openssl genpkey -algorithm RSA -out private_key.pem -aes256
   
+  
 •	Generate a CSR
+
   openssl req -new -key private_key.pem -out csr.pem 
   
+  
 •	Generate a self-signed certificate
+
   openssl req -x509 -key private_key.pem -in csr.pem-out certificate.pem-days 365 
