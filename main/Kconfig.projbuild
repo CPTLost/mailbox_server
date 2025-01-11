@@ -1,0 +1,36 @@
+menu "Mailbox Project Configuration"
+    
+    menu "LED Matrix Configuration"
+        config LED_MATRIX_GPIO
+            int "LED Matrix GPIO Pin"
+            default 8
+
+        config LED_MATRIX_SIZE
+            int "LED Matrix Size"
+            default 1
+    endmenu
+    
+    menu "WiFi Configuration"
+        config ESP_WIFI_SSID
+            string "WiFi SSID"
+            default "myssid"
+            help
+                SSID (network name) for the example to connect to.
+
+        config ESP_WIFI_PASSWORD
+            string "WiFi Password"
+            default "mypassword"
+            help
+                WiFi password (WPA or WPA2) for the example to use.
+    endmenu 
+
+    menu "UDP Server Configuration"
+        config UDP_SERVER_PORT
+            int "Port"
+            range 0 65535
+            default 3333
+            help
+                Local port the UDP server will listen on.
+    endmenu
+
+endmenu

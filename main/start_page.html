@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP HTTPS Mailbox Server</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Mailbox Info:</h1>
+        <p id="wakeup_time">Wakeup Time: Loading...</p>
+        <p id="battery_charge">Battery Charge: Loading...</p>
+        <p id="scale_weight">Current Weight: Loading...</p>
+        <p id="message_buffer">Wakeup Message: Loading...</p>
+    </div>
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch('/data');
+                const data = await response.json();
+                document.getElementById('wakeup_time').innerText = `Wakeup Time: ${data.wakeup_time}`;
+                document.getElementById('battery_charge').innerText = `Battery Charge: ${data.battery_charge_in_perc}%`;
+
+                let scaleWeightText = `Current Weight: ${data.scale_weight_in_g} g`;
+                if (data.scale_weight_in_g == 0) {
+                    scaleWeightText += " - No Mail available";
+                } else if (data.scale_weight_in_g > 0) {
+                    scaleWeightText += " - You got Mail!";
+                }
+                document.getElementById('scale_weight').innerText = scaleWeightText;
+
+                document.getElementById('message_buffer').innerText = `Message: ${data.message_buffer}`;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('wakeup_time').innerText = 'Wakeup Time: No data available';
+                document.getElementById('battery_charge').innerText = 'Battery Charge: No data available';
+                document.getElementById('scale_weight').innerText = 'Scale Weight: No data available';
+                document.getElementById('message_buffer').innerText = 'Message: No data available';
+            }
+        }
+
+        fetchData();
+        setInterval(fetchData, 1000); 
+    </script>
+</body>
+
+</html>
