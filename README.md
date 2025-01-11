@@ -1,35 +1,40 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+#Mailbox_server
 
-# _Sample project_
+Drei Haupt-Tasks/Prozesse:
+•	LED Blink 
+•	UDP-Server
+•	HTTPS-Server
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+##Main
+Als erstes wird der LED Blink Task created, damit die Programmzustände von Anfang an kommuniziert werden können.
+Anschließend wird versucht eine Verbindung zum Heimnetzwerk per WLAN aufzubauen. Das Programm läuft erst weiter, wenn eine Verbindung geschaffen wurde.
+Danach wird der UDP Data Mutex initialisiert und der UDP-Server Task created.
+Abschließend wird der HTTPS-Server gestartet. 
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+##LED Blink
+Der LED Blink Task, wie der Name schon verrät, lässt die RGB LED vom DevKitM-1 in den entsprechenden Farben erleuchten:
+•	Blinkend rot: 	WLAN nicht verbunden
+•	konstant blau:	WLAN verbunden keine Post
+•	konstant grün: 	WLAN verbunden und Post vorhanden
 
+##UDP-Server
+Nach der Erstellung des Taks erzeugt dieser einen socket und bindet sich an diesen. Anschließen springt er in einen Endlosschleife, in der er auf Daten wartet. 
+Sobald er Daten erhalten hat, speichert er diese in den udp_data_t struct udp_data (mit Semaphoren abgesichert) und Schickt dem Sender eine entsprechenden Antwort.
+Danach wird wieder auf neue Daten gewartet.
 
-
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
-
-## Example folder contents
-
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
-
-Below is short explanation of remaining files in the project folder.
-
-```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+##HTTPS-Server
+Der HTTPS Server ist Event-gesteuert. Es sind zwei URI-Handler registriert:
+•	Root Handler:
+Wenn nur die IP-Adresse vom Server aufgerufen wird, stellt der root handler die HTML-Page zur Verfügung.
+•	Data Handler:
+  Der Data Handler wird regelmäßig von der HTML-Page selbst aufgerufen. Der Data Handler liest die Daten aus dem struct udp_data mit der Funktion get_udp_data() aus. Diese Funktion verwendet beim Zugriff auf udp_data Semaphoren. Anschließend schickt der der 
+  handler die Daten in einem JSON-Format an die HTLM-Page.
+  In der HTML-Page selbst ist wie schon erwähnt JavaScript Code implementiert, der den Data Handler regelmäßig aufruft, um die angezeigten Daten upzudaten.
+  Da es ein HTTPS Server ist benötigt er zusätzlich ein certificate und ein private key. Diese self signed certificates wurden mit Hilfe des OpenSSL Programms erstellt. 
+Folgende Befehle wurden verwendet:
+•	Generate a private key
+  openssl genpkey -algorithm RSA -out private_key.pem -aes256
+•	Generate a CSR
+  openssl req -new -key private_key.pem -out csr.pem 
+•	Generate a self-signed certificate
+  openssl req -x509 -key private_key.pem -in csr.pem-out certificate.pem-days 365 
